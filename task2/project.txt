@@ -1,0 +1,4 @@
+3
+file1.c
+file2.c
+main.c
