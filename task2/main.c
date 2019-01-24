@@ -53,8 +53,9 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
     current_symbol = fgetc(file);
     while (EOF != current_symbol)
     {
-        // Символ открытия/закрытия строки
-        if (current_symbol == '\"' && prev_symbol != '\\')
+        // Символ открытия/закрытия строки. Вообще говоря, внутри строки могут быть экранированные кавычки:
+        // "tets \"number 1\""
+        if (!in_comment && current_symbol == '\"' && prev_symbol != '\\')
         {
             string_started = !string_started;
         }

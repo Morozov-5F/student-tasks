@@ -54,7 +54,8 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
     while (EOF != current_symbol)
     {
         
-        if (current_symbol == '\"' && prev_symbol != '\\')
+        
+        if (!in_comment && current_symbol == '\"' && prev_symbol != '\\')
         {
             string_started = !string_started;
         }
