@@ -2,11 +2,21 @@ int myproc1()
 {
    const char* nc = " Don't touch text /* inside */ quoted strings ";
    // This is comment
-   printf(" This is // not comment ");
+   printf(" This is // not comment \\/");
    printf(" This is /* not comment */ too");
-   myproc2();  // This is comment
-   /* This is comment too */ myproc3();
+   switch (test)
+   {
+      case '/':  text = "\\/"; break;
+      case '\r': text = "\\r"; break;
+   };
+   myproc2("\\");  // This is // // /// /// // asda s da/sd asd/ asd/ asd / x \ basd comment
+   /* This is comment too */ myproc3("\\\\\\");
+   printf("x / y =\"// \
+   10\n"/*comment here! */);
    myproc4();
+   if(codepoint == '\\' /*test*/ || codepoint == '"'/*asas*/ || codepoint < 0x20)
+      break;
+
    /* This is
       multiline comment */
    myproc5();

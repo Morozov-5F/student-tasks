@@ -1,23 +1,33 @@
 int myproc1()
 {
    const char* nc = " Don't touch text /* inside */ quoted strings ";
-   
-   printf(" This is // not comment ");
+
+   printf(" This is // not comment \\/");
    printf(" This is /* not comment */ too");
-   myproc2();  
-    myproc3();
+   switch (test)
+   {
+      case '/':  text = "\\/"; break;
+      case '\r': text = "\\r"; break;
+   };
+   myproc2("\\");
+    myproc3("\\\\\\");
+   printf("x / y =\"// \
+   10\n");
    myproc4();
-   
+   if(codepoint == '\\'  || codepoint == '"' || codepoint < 0x20)
+      break;
+
+
    myproc5();
-   
+
    myproc6();
    printf(  " This is multiline \
 string constant                 \
 without /* comment. Don't /*  \
 touch me. */ please" );
-   
+
     myproc7();
-   
+
     myproc8();
 
    printf("%d", 13 / 123);
