@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define MAX_N 24
 
-int board[MAX_N][MAX_N];
-
-int check_intersection(int board[MAX_N][MAX_N], unsigned size, int x, int y)
+int check_intersection(int * board, unsigned size, int x, int y)
 {
     int intersects = 0;
     for (int i = 0; i < size; ++i)
@@ -13,11 +12,11 @@ int check_intersection(int board[MAX_N][MAX_N], unsigned size, int x, int y)
         int diag_x_left  = x - (y - i);
         int diag_x_right = x + (y - i);
 
-        if (diag_x_left < size && board[diag_x_left][i] == 2)
+        if (diag_x_left < size && board[diag_x_left + size * i] == 2)
         {
             intersects = 1;
         }
-        if (diag_x_right >= 0 && board[diag_x_right][i] == 2)
+        if (diag_x_right >= 0 && board[diag_x_right + size * i] == 2)
         {
             intersects = 1;
             break;
@@ -27,7 +26,7 @@ int check_intersection(int board[MAX_N][MAX_N], unsigned size, int x, int y)
 }
 
 // "Ставит" фигуру на доску и помечает все поля под боем как "занятые"
-void occupy_board(int board[MAX_N][MAX_N], unsigned size, int x, int y)
+void occupy_board(int * board, unsigned size, int x, int y)
 {
     for (int i = 0; i < size; ++i)
     {
@@ -36,23 +35,23 @@ void occupy_board(int board[MAX_N][MAX_N], unsigned size, int x, int y)
 
         if (diag_x_left < size)
         {
-            board[diag_x_left][i] = 1;
+            board[diag_x_left + i * size] = 1;
         }
         if (diag_x_right >= 0)
         {
-            board[diag_x_right][i] = 1;
+            board[diag_x_right + i * size] = 1;
         }
     }
-    board[x][y] = 2;
+    board[x + size * y] = 2;
 }
 
-int find_unoccupied_spot(int board[MAX_N][MAX_N], unsigned size, int *x, int *y)
+int find_unoccupied_spot(int * board, unsigned size, int *x, int *y)
 {
     for (int i = 0; i < size; ++i)
     {
         for (int j = 0; j < size; ++j)
         {
-            if (board[i][j] == 0 && 0 == check_intersection(board, size, i, j))
+            if (board[i + size * j] == 0 && 0 == check_intersection(board, size, i, j))
             {
                 *x = i;
                 *y = j;
@@ -64,13 +63,13 @@ int find_unoccupied_spot(int board[MAX_N][MAX_N], unsigned size, int *x, int *y)
     return 0;
 }
 
-void print_all_occupied_positions(int board[MAX_N][MAX_N], unsigned size, FILE * out)
+void print_all_occupied_positions(int * board, unsigned size, FILE * out)
 {
     for (int i = 0; i < size; ++i)
     {
         for (int j = 0; j < size; ++j)
         {
-            if (board[i][j] == 2)
+            if (board[i + size * j] == 2)
             {
                 fprintf(out, "(%d, %d) ", i, j);
             }
@@ -79,9 +78,9 @@ void print_all_occupied_positions(int board[MAX_N][MAX_N], unsigned size, FILE *
     fprintf(out, "\n");
 }
 
-int place_figure_on_board(int board[MAX_N][MAX_N], unsigned size, int initial_figures, int figures_left, FILE * out)
+int place_figure_on_board(int *board, unsigned size, int initial_figures, int figures_left, FILE * out)
 {
-    int new_board[MAX_N][MAX_N];
+    int *new_board = NULL;
     int new_x, new_y;
 
     int board_was_occupied = 0;
@@ -94,8 +93,11 @@ int place_figure_on_board(int board[MAX_N][MAX_N], unsigned size, int initial_fi
         return 0;
     }
 
+    // Выделяем ресурсы под новую площадку
+    new_board = calloc(size * size, sizeof(int));
+
     // Скопируем себе доску, чтобы не портить исходную
-    memcpy(new_board, board, sizeof(int) * MAX_N * MAX_N);
+    memcpy(new_board, board, sizeof(int) * size * size);
 
     while (find_unoccupied_spot(new_board, size, &new_x, &new_y))
     {
@@ -108,9 +110,11 @@ int place_figure_on_board(int board[MAX_N][MAX_N], unsigned size, int initial_fi
             solution_found = 1;
         }
 
-        board[new_x][new_y] = 3;
-        memcpy(new_board, board, sizeof(int) * MAX_N * MAX_N);
+        board[new_x + size * new_y] = 3;
+        memcpy(new_board, board, sizeof(int) * size * size);
     }
+
+    free(new_board);
 
     if (!board_was_occupied)
     {
@@ -131,9 +135,13 @@ int main(int argc, char const *argv[])
     unsigned int n, l, k;
     int x, y;
 
+    int * board = NULL;
+
     FILE * input = fopen("input.txt", "r");
     FILE * output = fopen("output.txt", "w");
     fscanf(input, "%u %u %u", &n, &l, &k);
+
+    board = calloc(n * n, sizeof(int));
 
     for (int i = 0; i < k; ++i)
     {
@@ -149,5 +157,8 @@ int main(int argc, char const *argv[])
         fprintf(output, "no solutions\n");
     }
     fclose(output);
+
+    free(board);
+
     return 0;
 }
