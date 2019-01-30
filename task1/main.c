@@ -33,11 +33,16 @@ void occupy_board(int * board, unsigned size, int x, int y)
         int diag_x_left  = x - (y - i);
         int diag_x_right = x + (y - i);
 
-        if (diag_x_left < size)
+        if (y == i)
+        {
+            continue;
+        }
+
+        if (0 <= diag_x_left && diag_x_left < size)
         {
             board[diag_x_left + i * size] = 1;
         }
-        if (diag_x_right >= 0)
+        if (0 <= diag_x_right && diag_x_right < size)
         {
             board[diag_x_right + i * size] = 1;
         }
