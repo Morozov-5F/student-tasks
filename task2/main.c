@@ -44,7 +44,6 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
     fread(old_file, fsize, 1, f);
     fclose(f);
 
-    char current_symbol = ' ';
     char prev_symbol = ' ';
     char before_prev_symbol = ' ';
 
@@ -78,7 +77,7 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
             {
                 slashes++;
             }
-            printf("Slashes: %d\n", slashes);
+
             // Если кавычка "настоящая, т.е. все слеши экранированы"
             if (slashes % 2 == 0)
             {
@@ -97,7 +96,7 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
             in_comment = 1;
             multiline_started = 1;
         }
-        if (prev_symbol == '*' && current_symbol == '/' && in_comment)
+        if (prev_symbol == '*' && current_symbol == '/' && in_comment && multiline_started)
         {
             in_comment = 0;
             multiline_started = 0;

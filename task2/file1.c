@@ -16,7 +16,7 @@ int myproc1()
    myproc4();
    if(codepoint == '\\' /*test*/ || codepoint == '"'/*asas*/ || codepoint < 0x20)
       break;
-
+   // sdasdasda sasd /* qsdasd */ !
    /* This is
       multiline comment */
    myproc5();
