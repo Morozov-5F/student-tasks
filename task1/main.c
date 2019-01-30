@@ -99,7 +99,7 @@ int place_figure_on_board(int *board, unsigned size, int initial_figures, int fi
     }
 
     // Выделяем ресурсы под новую площадку
-    new_board = calloc(size * size, sizeof(int));
+    new_board = (int *)calloc(size * size, sizeof(int));
 
     // Скопируем себе доску, чтобы не портить исходную
     memcpy(new_board, board, sizeof(int) * size * size);
@@ -146,12 +146,10 @@ int main(int argc, char const *argv[])
     FILE * output = fopen("output.txt", "w");
     fscanf(input, "%u %u %u", &n, &l, &k);
 
-    board = calloc(n * n, sizeof(int));
+    board = (int *)calloc(n * n, sizeof(int));
 
     for (int i = 0; i < k; ++i)
     {
-        int x, y;
-
         fscanf(input, "%d %d", &x, &y);
         occupy_board(board, n, x, y);
     }
