@@ -33,17 +33,13 @@ void save_new_file(char filename[], char * contents, unsigned contents_size)
 char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
 {
     char prev_symbol = ' ';
-    char before_prev_symbol = ' ';
 
     int string_started = 0;
-    int ignore_next_symbol = 0;
-    int possible_comment_started = 0;
     int multiline_started = 0;
     int multiline_just_ended = 0;
     int line_started = 0;
     int in_comment = 0;
 
-    int in_string = 0;
 
     int k = 0;
 
