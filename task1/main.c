@@ -4,19 +4,33 @@
 
 #define MAX_N 24
 
+void print_board(int * board, unsigned size)
+{
+    for (int y = 0; y < size; ++y)
+    {
+        for (int x = 0; x < size; ++x)
+        {
+            printf("%d ", board[x + y * size]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
 int check_intersection(int * board, unsigned size, int x, int y)
 {
     int intersects = 0;
-    for (int i = 0; i < size; ++i)
+    for (int line = 0; line < size; ++line)
     {
-        int diag_x_left  = x - (y - i);
-        int diag_x_right = x + (y - i);
+        int diag_x_left  = x - (y - line);
+        int diag_x_right = x + (y - line);
 
-        if (diag_x_left < size && board[diag_x_left + size * i] == 2)
+        if (0 <= diag_x_left && diag_x_left < size && board[diag_x_left + size * line] == 2)
         {
             intersects = 1;
+            break;
         }
-        if (diag_x_right >= 0 && board[diag_x_right + size * i] == 2)
+        if (0 <= diag_x_right && diag_x_right < size && board[diag_x_right + size * line] == 2)
         {
             intersects = 1;
             break;
@@ -28,38 +42,33 @@ int check_intersection(int * board, unsigned size, int x, int y)
 // "Ставит" фигуру на доску и помечает все поля под боем как "занятые"
 void occupy_board(int * board, unsigned size, int x, int y)
 {
-    for (int i = 0; i < size; ++i)
+    for (int line = 0; line < size; ++line)
     {
-        int diag_x_left  = x - (y - i);
-        int diag_x_right = x + (y - i);
-
-        if (y == i)
-        {
-            continue;
-        }
+        int diag_x_left  = x - (y - line);
+        int diag_x_right = x + (y - line);
 
         if (0 <= diag_x_left && diag_x_left < size)
         {
-            board[diag_x_left + i * size] = 1;
+            board[diag_x_left + line * size] = 1;
         }
         if (0 <= diag_x_right && diag_x_right < size)
         {
-            board[diag_x_right + i * size] = 1;
+            board[diag_x_right + line * size] = 1;
         }
     }
     board[x + size * y] = 2;
 }
 
-int find_unoccupied_spot(int * board, unsigned size, int *x, int *y)
+int find_unoccupied_spot(int * board, unsigned size, int *new_x, int *new_y)
 {
-    for (int i = 0; i < size; ++i)
+    for (int y = 0; y < size; ++y)
     {
-        for (int j = 0; j < size; ++j)
+        for (int x = 0; x < size; ++x)
         {
-            if (board[i + size * j] == 0 && 0 == check_intersection(board, size, i, j))
+            if (board[x + size * y] == 0 && 0 == check_intersection(board, size, x, y))
             {
-                *x = i;
-                *y = j;
+                *new_x = x;
+                *new_y = y;
 
                 return 1;
             }
@@ -70,13 +79,13 @@ int find_unoccupied_spot(int * board, unsigned size, int *x, int *y)
 
 void print_all_occupied_positions(int * board, unsigned size, FILE * out)
 {
-    for (int i = 0; i < size; ++i)
+    for (int y = 0; y < size; ++y)
     {
-        for (int j = 0; j < size; ++j)
+        for (int x = 0; x < size; ++x)
         {
-            if (board[i + size * j] == 2)
+            if (board[x + size * y] == 2)
             {
-                fprintf(out, "(%d, %d) ", i, j);
+                fprintf(out, "(%d,%d) ", x, y);
             }
         }
     }

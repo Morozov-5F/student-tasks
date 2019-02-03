@@ -32,18 +32,6 @@ void save_new_file(char filename[], char * contents, unsigned contents_size)
 
 char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
 {
-    char * new_file = calloc(50 * 1024 * 1024, sizeof(char));
-    char *old_file = calloc(50 * 1024 * 1024 + 1, sizeof(char));
-    FILE * f = fopen(filename, "r");
-    long fsize = 0;
-
-    fseek(f, 0, SEEK_END);
-    fsize = ftell(f);
-    rewind(f); // то же, что и fseek(f, 0, SEEK_SET)
-
-    fread(old_file, fsize, 1, f);
-    fclose(f);
-
     char prev_symbol = ' ';
     char before_prev_symbol = ' ';
 
@@ -58,17 +46,26 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
     int in_string = 0;
 
     int k = 0;
+
+    char * new_file = (char *)calloc(50 * 1024 * 1024 + 1, sizeof(char));
+    char * old_file = (char *)calloc(50 * 1024 * 1024 + 2, sizeof(char));
+
+    FILE * f = fopen(filename, "r");
+    long fsize = 0;
+
+    fseek(f, 0, SEEK_END);
+    fsize = ftell(f);
+    rewind(f); // то же, что и fseek(f, 0, SEEK_SET)
+
+    fread(old_file, fsize, 1, f);
+    fclose(f);
+
     for (int i = 0; i < fsize; ++i)
     {
         char current_symbol = old_file[i];
         char next_symbol = old_file[i + 1];
         // Символ открытия/закрытия строки. Вообще говоря, внутри строки могут быть экранированные кавычки:
         // "tets \"number 1\""
-        // if (!in_comment && current_symbol == '\"'  && prev_symbol != '\\')
-        // {
-        //     string_started = !string_started;
-        // }
-
         if (!in_comment && current_symbol == '\"')
         {
             // Ищем предыдущие слеши экранирования, чтобы понять, "настоящая" ли это кавычка
@@ -142,106 +139,6 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
     return new_file;
 }
 
-#if 0
-char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
-{
-    // Выделим 50кБ для нового файла без комментариев
-    char * new_file = calloc(50 * 1024 * 1024, sizeof(char));
-    char current_symbol = ' ';
-    char prev_symbol = ' ';
-    char before_prev_symbol = ' ';
-
-    int string_started = 0;
-    int ignore_next_symbol = 0;
-    int possible_comment_started = 0;
-    int multiline_started = 0;
-    int multiline_just_ended = 0;
-    int line_started = 0;
-    int in_comment = 0;
-
-    int in_symbol = 0;
-    int in_string = 0;
-
-    int k = 0;
-
-    FILE * file = fopen(filename, "r");
-
-    current_symbol = fgetc(file);
-    while (EOF != current_symbol)
-    {
-        // Символ открытия/закрытия строки. Вообще говоря, внутри строки могут быть экранированные кавычки:
-        // "tets \"number 1\""
-        if (!in_comment && !in_symbol && current_symbol == '\"'  && prev_symbol != '\\')
-        {
-            in_string = !in_string;
-        }
-
-        if (!in_comment && !in_string && current_symbol == '\''  && prev_symbol != '\\')
-        {
-            in_symbol = !in_symbol;
-        }
-
-        string_started = in_string || in_symbol;
-
-        // if (!in_comment && current_symbol == '\"'   && prev_symbol != '\\')
-        // {
-        //     string_started = !string_started;
-        // }
-
-        //  Многострочный комментарий
-        if (prev_symbol == '/' && current_symbol == '*' && !string_started && !in_comment)
-        {
-            in_comment = 1;
-            multiline_started = 1;
-        }
-        if (prev_symbol == '*' && current_symbol == '/' && in_comment)
-        {
-            in_comment = 0;
-            multiline_started = 0;
-            multiline_just_ended = 1;
-        }
-
-        // Однострочный комментарий
-        if (prev_symbol == '/' && current_symbol == '/' && !in_comment && !string_started && !multiline_just_ended)
-        {
-            in_comment = 1;
-            line_started = 1;
-        }
-        if (prev_symbol != '\\' && current_symbol == '\n' && line_started)
-        {
-            in_comment = 0;
-            line_started = 0;
-        }
-
-
-        if (!in_comment)
-        {
-            // if (!string_started && prev_symbol == '/')
-            // {
-            //     if (multiline_just_ended)
-            //     {
-            //         multiline_just_ended = 0;
-            //     }
-            //     else
-            //     {
-            //         new_file[k++] = prev_symbol;
-            //     }
-            // }
-            // // if (string_started)
-            // // {
-            // }
-
-        }
-
-        prev_symbol = current_symbol;
-        current_symbol = fgetc(file);
-    }
-    fclose(file);
-
-    *file_contents_size = k;
-    return new_file;
-}
-#endif
 int main(int argc, char const *argv[])
 {
     int n;
