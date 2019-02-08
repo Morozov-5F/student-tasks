@@ -41,6 +41,8 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
     int line_started = 0;
     int in_comment = 0;
 
+    int multiline_start_pos = 0;
+
     int k = 0;
 
     char * new_file = (char *)calloc(50 * 1024 * 1024 + 1, sizeof(char));
@@ -87,12 +89,13 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
         }
 
         //  Многострочный комментарий
-        if (prev_symbol == '/' && current_symbol == '*' && !string_started && !multiline_started && !line_started)
+        if (prev_symbol == '/' && current_symbol == '*' && !line_started && !string_started && !multiline_started)
         {
             in_comment = 1;
             multiline_started = 1;
+            multiline_start_pos = i;
         }
-        else if (prev_symbol == '*' && current_symbol == '/' && !string_started && multiline_started && !line_started)
+        else if (prev_symbol == '*' && current_symbol == '/'&& !line_started  && !string_started && multiline_started && (i - multiline_start_pos > 1))
         {
             in_comment = 0;
             multiline_started = 0;
