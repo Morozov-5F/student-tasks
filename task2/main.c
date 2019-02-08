@@ -34,12 +34,12 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
 {
     char prev_symbol = ' ';
 
+    char string_start_char = '\0';
     int string_started = 0;
     int multiline_started = 0;
     int multiline_just_ended = 0;
     int line_started = 0;
     int in_comment = 0;
-
 
     int k = 0;
 
@@ -62,7 +62,7 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
         char next_symbol = old_file[i + 1];
         // Символ открытия/закрытия строки. Вообще говоря, внутри строки могут быть экранированные кавычки:
         // "tets \"number 1\""
-        if (!in_comment && current_symbol == '\"')
+        if (!in_comment && (current_symbol == '\"' || current_symbol == '\''))
         {
             // Ищем предыдущие слеши экранирования, чтобы понять, "настоящая" ли это кавычка
             int slashes = 0;
@@ -71,42 +71,46 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
                 slashes++;
             }
 
-            // Если кавычка "настоящая, т.е. все слеши экранированы"
-            if (slashes % 2 == 0)
+            if (!string_started)
             {
-                // Если мы сейчас не в символьном литерале
-                // string_started = !string_started;
-                if (string_started || prev_symbol != '\'')
+                string_start_char = current_symbol;
+                string_started = 1;
+            }
+            else
+            {
+                if (string_started && string_start_char == current_symbol && slashes % 2 == 0)
                 {
-                    string_started = !string_started;
+                    string_start_char = '\0';
+                    string_started = 0;
                 }
             }
         }
 
         //  Многострочный комментарий
-        if (prev_symbol == '/' && current_symbol == '*' && !string_started && !in_comment && !line_started)
+        if (prev_symbol == '/' && current_symbol == '*' && !string_started && !multiline_started && !line_started)
         {
             in_comment = 1;
             multiline_started = 1;
         }
-        if (prev_symbol == '*' && current_symbol == '/' && in_comment && multiline_started && !line_started)
+        else if (prev_symbol == '*' && current_symbol == '/' && !string_started && multiline_started && !line_started)
         {
             in_comment = 0;
             multiline_started = 0;
             multiline_just_ended = 1;
         }
-
         // Однострочный комментарий
-        if (prev_symbol == '/' && current_symbol == '/' && !in_comment && !string_started && !multiline_just_ended)
+        else if (prev_symbol == '/' && current_symbol == '/' && !string_started && !multiline_just_ended)
         {
             in_comment = 1;
             line_started = 1;
         }
-        if (prev_symbol != '\\' && current_symbol == '\n' && line_started)
+        else if (prev_symbol != '\\' && current_symbol == '\n' && line_started)
         {
             in_comment = 0;
             line_started = 0;
         }
+
+        in_comment = line_started || multiline_started;
 
         if (!in_comment && !multiline_just_ended)
         {
@@ -132,6 +136,7 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
         prev_symbol = current_symbol;
     }
     *file_contents_size = k;
+    free(old_file);
     return new_file;
 }
 
