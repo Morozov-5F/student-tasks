@@ -84,12 +84,12 @@ char * remove_comments_from_file(char filename[], unsigned * file_contents_size)
         }
 
         //  Многострочный комментарий
-        if (prev_symbol == '/' && current_symbol == '*' && !string_started && !in_comment)
+        if (prev_symbol == '/' && current_symbol == '*' && !string_started && !in_comment && !line_started)
         {
             in_comment = 1;
             multiline_started = 1;
         }
-        if (prev_symbol == '*' && current_symbol == '/' && in_comment && multiline_started)
+        if (prev_symbol == '*' && current_symbol == '/' && in_comment && multiline_started && !line_started)
         {
             in_comment = 0;
             multiline_started = 0;

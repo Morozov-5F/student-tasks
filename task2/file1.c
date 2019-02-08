@@ -35,6 +35,14 @@ touch me. */ please" );
        end of comment here -> */
     myproc8();
 
-   printf("%d", 13 / 123);
-return 1;
+   // asdasdasd /* asdasdasd */ asdasdsad
+
+   // Comment 2 /*
+   int x = 0;
+   // Comment 3 */
+   int y = 3;
+   //Comment 4
+
+    printf("%d", 13 / 123);
+    return 1;
 }
